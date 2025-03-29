@@ -1,0 +1,35 @@
+{
+  "name": "banking_practice",
+  "version": "0.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --setupFiles dotenv/config"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/renetdevp/banking_practice.git"
+  },
+  "author": "renetdevp",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/renetdevp/banking_practice/issues"
+  },
+  "homepage": "https://github.com/renetdevp/banking_practice#readme",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "compression": "^1.8.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "https": "^1.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
+  }
+}
