@@ -4,6 +4,16 @@ function checkValidUserAuth(userAuth){
     if (typeof userAuth !== 'string'){
         throw createErrorResponse(401, 'Unauthorized');
     }
+
+    if (userAuth.startsWith('Bearer ')){
+        throw createErrorResponse(401, 'Unauthorized');
+    }
+}
+
+function checkValidToken(token){
+    if (typeof token !== 'string'){
+        throw createErrorResponse(401, 'Unauthorized');
+    }
 }
 
 function createErrorResponse(code, msg){
@@ -17,10 +27,14 @@ function createErrorResponse(code, msg){
 
 module.exports = {
     verifyAuth: async (req, res, next) => {
-        const userAuth = req.headers.authorization.split('Bearer ')[1];
+        const userAuth = req.headers.authorization;
+
+        checkValidUserAuth(userAuth);
+
+        const token = userAuth.split('Bearer ')[1];
 
         try {
-            checkValidUserAuth(userAuth);
+            checkValidToken(token);
 
             const decodedUser = await verifyToken(userAuth);
 
@@ -34,7 +48,7 @@ module.exports = {
         }
     },
 
-    checkAdmin: async (req, res, next) => {
+    checkAdmin: (req, res, next) => {
         const { role } = req.user;
 
         if (role !== 'admin'){
