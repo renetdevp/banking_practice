@@ -5,13 +5,7 @@ function checkValidUserAuth(userAuth){
         throw createErrorResponse(401, 'Unauthorized');
     }
 
-    if (userAuth.startsWith('Bearer ')){
-        throw createErrorResponse(401, 'Unauthorized');
-    }
-}
-
-function checkValidToken(token){
-    if (typeof token !== 'string'){
+    if (!userAuth.startsWith('Bearer ')){
         throw createErrorResponse(401, 'Unauthorized');
     }
 }
@@ -34,9 +28,7 @@ module.exports = {
         const token = userAuth.split('Bearer ')[1];
 
         try {
-            checkValidToken(token);
-
-            const decodedUser = await verifyToken(userAuth);
+            const decodedUser = await verifyToken(token);
 
             req.user = decodedUser;
 

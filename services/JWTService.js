@@ -6,12 +6,32 @@ const jwtOption = {
     expiresIn: '1h',
 };
 
+
+function checkValidToken(token){
+    if (typeof token !== 'string'){
+        throw createErrorResponse(401, 'Unauthorized');
+    }
+
+    if (!token.trim()){
+        throw createErrorResponse(401, 'Unauthorized');
+    }
+}
+
+function createErrorResponse(code, msg){
+    const err = new Error();
+
+    err.code = code;
+    err.msg = msg;
+
+    return err;
+}
+
 module.exports = {
     createToken: async (userId, role) => {
         return new Promise((resolve, reject) => {
             jwt.sign({ userId, role }, jwtSecret, jwtOption, (err, token) => {
                 if (err){
-                    reject({ code: 400, msg: 'Failed to create Token' });
+                    reject(createErrorResponse(400, 'Failed to create Token'));
                 }
 
                 resolve(token);
@@ -19,11 +39,13 @@ module.exports = {
         });
     },
 
-    verifyToken: (userAuth) => {
+    verifyToken: (userToken) => {
         return new Promise((resolve, reject) => {
-            jwt.verify(userAuth, jwtSecret, jwtOption, (err, decoded) => {
+            checkValidToken(userToken);
+
+            jwt.verify(userToken, jwtSecret, (err, decoded) => {
                 if (err){
-                    reject({ code: 400, msg: 'Failed to verify Token' });
+                    reject(createErrorResponse(400, 'Failed to verify Token'));
                 }
 
                 resolve(decoded);
