@@ -15,9 +15,10 @@ module.exports = {
 
     readOne: async (req, res, next) => {
         const userId = req.params.id;
+        const userAuth = req.user;
 
         try {
-            const user = await userService.readOne(userId);
+            const user = await userService.readOne(userId, userAuth);
 
             res.status(200).json({
                 user: user,
@@ -44,9 +45,10 @@ module.exports = {
     updateOne: async (req, res, next) => {
         const userId = req.params.id;
         const changes = req.body;
+        const userAuth = req.user;
 
         try {
-            await userService.updateOne(userId, changes);
+            await userService.updateOne(userId, changes, userAuth);
 
             res.status(200).json({
                 msg: `User ${userId} changed`,
@@ -70,9 +72,10 @@ module.exports = {
 
     deleteOne: async (req, res, next) => {
         const userId = req.params.id;
+        const userAuth = req.user;
 
         try {
-            await userService.deleteOne(userId);
+            await userService.deleteOne(userId, userAuth);
 
             res.status(200).json({
                 msg: `User ${userId} deleted`,

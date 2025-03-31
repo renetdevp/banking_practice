@@ -22,9 +22,9 @@ module.exports = {
         try {
             checkValidUserAuth(userAuth);
 
-            const decodedUserId = await verifyToken(userAuth);
+            const decodedUser = await verifyToken(userAuth);
 
-            req.user = decodedUserId;
+            req.user = decodedUser;
 
             next();
         }catch (e){
@@ -32,5 +32,17 @@ module.exports = {
                 msg: e.msg,
             });
         }
+    },
+
+    checkAdmin: async (req, res, next) => {
+        const { role } = req.user;
+
+        if (role !== 'admin'){
+            return res.status(403).json({
+                msg: 'Forbidden',
+            });
+        }
+
+        next();
     },
 }

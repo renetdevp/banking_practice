@@ -7,9 +7,9 @@ const jwtOption = {
 };
 
 module.exports = {
-    createToken: async (userId) => {
+    createToken: async (userId, role) => {
         return new Promise((resolve, reject) => {
-            jwt.sign({ suerId: userId }, jwtSecret, jwtOption, (err, token) => {
+            jwt.sign({ userId, role }, jwtSecret, jwtOption, (err, token) => {
                 if (err){
                     reject({ code: 400, msg: 'Failed to create Token' });
                 }
@@ -26,7 +26,7 @@ module.exports = {
                     reject({ code: 400, msg: 'Failed to verify Token' });
                 }
 
-                resolve(decoded.userId);
+                resolve(decoded);
             });
         });
     },

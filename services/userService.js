@@ -68,6 +68,12 @@ async function conformUser(modification){
     return result;
 }
 
+function checkUserAuth(userId, userAuth){
+    if (userId === userAuth.userId || userAuth.role !== 'admin'){
+        throw createErrorResponse(403, 'Forbidden');
+    }
+}
+
 function createErrorResponse(code, msg){
     const err = new Error();
 
@@ -84,10 +90,11 @@ module.exports = {
         return users;
     },
 
-    readOne: async (userId, projection = { userId: 1, role: 1 }) => {
+    readOne: async (userId, userAuth) => {
         checkUserIdFormat(userId);
+        checkUserAuth(userId, userAuth);
 
-        const user = await User.findOne({ userId }, projection).lean();
+        const user = await User.findOne({ userId }).lean();
 
         if (user === null){
             throw createErrorResponse(404, `User ${userId} not found`);
@@ -109,12 +116,9 @@ module.exports = {
         await User.create({ userId: userId, hash: encrypted, salt: salt });
     },
 
-    updateOne: async (userId, changes, decodedUserId) => {
+    updateOne: async (userId, changes, userAuth) => {
         checkUserIdFormat(userId);
-
-        if (userId !== decodedUserId){
-            throw createErrorResponse(403, 'Forbidden');
-        }
+        checkUserAuth(userId, userAuth);
 
         const conformedUser = await conformUser(changes);
 
@@ -133,12 +137,9 @@ module.exports = {
         await User.deleteMany(filter).exec();
     },
 
-    deleteOne: async (userId, decodedUserId) => {
+    deleteOne: async (userId, userAuth) => {
         checkUserIdFormat(userId);
-
-        if (decodedUserId !== userId){
-            throw createErrorResponse(403, 'Forbidden');
-        }
+        checkUserAuth(userId, userAuth);
 
         const result = await User.deleteOne({ userId }).exec();
 
