@@ -1,14 +1,15 @@
 const router = require('express').Router();
 
 const userController = require('../controllers');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // two middlewares needed, verifyAuth & checkAdmin
 
-router.get('/', userController.readAll);
-router.get('/:id', userController.readOne);
+router.get('/', authMiddleware.verifyAuth, userController.readAll);
+router.get('/:id', authMiddleware.verifyAuth, userController.readOne);
 router.post('/', userController.createOne);
-router.put('/:id', userController.updateOne);
-router.delete('/', userController.deleteAll);
-router.delete('/:id', userController.deleteOne);
+router.put('/:id', authMiddleware.verifyAuth, userController.updateOne);
+router.delete('/', authMiddleware.verifyAuth, userController.deleteAll);
+router.delete('/:id', authMiddleware.verifyAuth, userController.deleteOne);
 
 module.exports = router;
