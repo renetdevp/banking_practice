@@ -23,11 +23,11 @@ module.exports = {
     verifyAuth: async (req, res, next) => {
         const userAuth = req.headers.authorization;
 
-        checkValidUserAuth(userAuth);
-
-        const token = userAuth.split('Bearer ')[1];
-
         try {
+            checkValidUserAuth(userAuth);
+
+            const token = userAuth.split('Bearer ')[1];
+
             const decodedUser = await verifyToken(token);
 
             req.user = decodedUser;

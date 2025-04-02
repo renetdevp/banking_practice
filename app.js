@@ -25,7 +25,7 @@ app.use('/', indexRouter);
 connectDB();
 
 app.use((err, req, res, next) => {
-    if (err?.code && err?.msg){
+    if (!(err?.code && err?.msg)){
         console.error('Server Error', err);
 
         return res.status(500).json({
@@ -33,7 +33,7 @@ app.use((err, req, res, next) => {
         });
     }
 
-    const { code } = err.code;
+    const { code } = err;
     const msg = code<500 ? err.msg : 'Server Error';
 
     console.error(`Error code: ${code} \n${msg}`);

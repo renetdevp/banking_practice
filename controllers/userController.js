@@ -34,7 +34,7 @@ module.exports = {
         try {
             await userService.createOne(userId, hash);
 
-            res.status(200).json({
+            res.status(201).json({
                 msg: `User ${userId} created`,
             });
         }catch (e){

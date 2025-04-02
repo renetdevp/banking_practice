@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const userController = require('../controllers');
+const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // two middlewares needed, verifyAuth & checkAdmin

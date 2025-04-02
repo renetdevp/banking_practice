@@ -147,4 +147,6 @@ module.exports = {
             throw createErrorResponse(404, `User ${userId} not found`);
         }
     },
+
+    encryptPassword,
 };

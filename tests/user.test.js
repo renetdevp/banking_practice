@@ -2,6 +2,17 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 
 const app = require('../app');
+const User = require('../models/userModel');
+const { encryptPassword } = require('../services/userService');
+
+const { createToken } = require('../services/JWTService');
+
+beforeAll(async () => {
+    // initialize DB
+    await User.deleteMany();
+    const { salt, encrypted } = await encryptPassword('existHash');
+    await User.create({ userId: 'existuser', hash: encrypted, salt: salt });
+});
 
 // testCodeSet
 // {
@@ -10,50 +21,64 @@ const app = require('../app');
 //     createUser: 201,
 //     ...etc
 // }
-describe('TEST /users ROUTE', async () => {
-    const anonymousTestSet = {
-        readAllUsers: 401,
-        readOtherUser: 401,
-        readNonExistsUser: 401,
-        createNewUser: 201,
-        createExistUser: 409,
-        updateOtherUser: 401,
-        deleteOtherUser: 401,
-        deleteAllUsers: 401,
-    };
-    describe('TEST /users ROUTE without identification', userTest(undefined, undefined, anonymousTestSet));
 
-    const nonAdminUser = { userId: 'testuser', hash: 'testHash' };
-    const nonAdminToken = await requestHandler('post', '/auth', nonAdminUser);
-    const nonAdminTestSet = {
-        readAllUsers: 403,
-        readUserself: 200,
-        readOtherUser: 403,
-        readNonExistsUser: 404,
-        createNewUser: 201,
-        createExistUser: 409,
-        updateUserself: 200,
-        updateOtherUser: 401,
-        deleteOtherUser: 401,
-        deleteAllUsers: 401,
-    };
-    describe('TEST /users ROUTE with non-admin identification', userTest(nonAdminUser.userId, nonAdminToken, nonAdminTestSet));
+describe('TEST /users ROUTE', () => {
+    describe('TEST /users ROUTE without identification', () => {
+        const anonymousTestSet = {
+            readAllUsers: 401,
+            readOtherUser: 401,
+            readNonExistUser: 401,
+            createNewUser: 201,
+            createExistUser: 409,
+            updateOtherUser: 401,
+            deleteOtherUser: 401,
+            deleteAllUsers: 401,
+        };
+        userTest(undefined, undefined, anonymousTestSet);
+    });
 
-    const adminUser = { userId: 'adminuser', hash: 'adminHash' };
-    const adminToken = await requestHandler('post', '/auth', adminUser);
-    const adminTestSet = {
-        readAllUsers: 403,
-        readUserself: 200,
-        readOtherUser: 403,
-        readNonExistsUser: 404,
-        createNewUser: 201,
-        createExistUser: 409,
-        updateUserself: 200,
-        updateOtherUser: 401,
-        deleteOtherUser: 401,
-        deleteAllUsers: 401,
-    };
-    describe('TEST /users ROUTE with admin identification', userTest(adminUser.userId, adminToken, adminTestSet));
+    describe('TEST /users ROUTE with non-admin identification', () => {
+        const nonAdminUser = { userId: 'testuser', hash: 'testHash' };
+        let nonAdminToken = '';
+        beforeAll(async () => {
+            nonAdminToken = await createToken(nonAdminUser.userId, 'user');
+        });
+        const nonAdminTestSet = {
+            readAllUsers: 403,
+            readUserself: 200,
+            readOtherUser: 403,
+            readNonExistUser: 404,
+            createNewUser: 201,
+            createExistUser: 409,
+            updateUserself: 200,
+            updateOtherUser: 401,
+            deleteOtherUser: 401,
+            deleteAllUsers: 401,
+        };
+        userTest(nonAdminUser.userId, nonAdminToken, nonAdminTestSet);
+    });
+
+    describe('TEST /users ROUTE with admin identification', () => {
+        const adminUser = { userId: 'adminuser', hash: 'adminHash' };
+        // const adminToken = await requestHandler('post', '/auth', adminUser);
+        let adminToken = '';
+        const adminTestSet = {
+            readAllUsers: 403,
+            readUserself: 200,
+            readOtherUser: 403,
+            readNonExistUser: 404,
+            createNewUser: 201,
+            createExistUser: 409,
+            updateUserself: 200,
+            updateOtherUser: 401,
+            deleteOtherUser: 401,
+            deleteAllUsers: 401,
+        };
+        beforeAll(async () => {
+            adminToken = await createToken(adminUser.userId, 'admin');
+        });
+        userTest(adminUser.userId, adminToken, adminTestSet)
+    });
 });
 
 function userTest(userId, auth, testCodeSet){
@@ -63,6 +88,7 @@ function userTest(userId, auth, testCodeSet){
         },
 
         readUserself: async () => {
+            if (!userId) throw new Error('Invalid userId')
             return await requestHandler('get', `/users/${userId}`, undefined, auth);
         },
 
@@ -83,6 +109,7 @@ function userTest(userId, auth, testCodeSet){
         },
 
         updateUserself: async () => {
+            if (!userId) throw new Error('Invalid userId')
             return await requestHandler('put', `/users/${userId}`, { hash: 'updatedHash' }, auth);
         },
 
@@ -99,9 +126,11 @@ function userTest(userId, auth, testCodeSet){
         },
     };
 
-    Object.keys(testCodeSet).map(key => {
-        const res = testMap[key]();
-        expect(res.statusCode).toBe(testCodeSet[key])
+    Object.keys(testCodeSet).map((key) => {
+        test(key, async () => {
+            const res = await testMap[key]();
+            expect(res.statusCode).toBe(testCodeSet[key])
+        });
     });
 }
 
