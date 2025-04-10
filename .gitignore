@@ -1,6 +1,7 @@
 .env
 node_modules/
 db/
+.vscode/
 runDB.sh
 generateServerKey.sh
 *.pem
