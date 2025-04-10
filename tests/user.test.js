@@ -14,14 +14,6 @@ beforeAll(async () => {
     await User.create({ userId: 'existuser', hash: encrypted, salt: salt });
 });
 
-// testCodeSet
-// {
-//     readAllUsers: 401,
-//     readUser: 401,
-//     createUser: 201,
-//     ...etc
-// }
-
 describe('TEST /users ROUTE', () => {
     describe('TEST /users ROUTE without identification', () => {
         const anonymousTestSet = {
@@ -62,6 +54,9 @@ describe('TEST /users ROUTE', () => {
         const adminUser = { userId: 'adminuser', hash: 'adminHash' };
         // const adminToken = await requestHandler('post', '/auth', adminUser);
         let adminToken = '';
+        beforeAll(async () => {
+            adminToken = await createToken(adminUser.userId, 'admin');
+        });
         const adminTestSet = {
             readAllUsers: 403,
             readUserself: 200,
@@ -74,9 +69,6 @@ describe('TEST /users ROUTE', () => {
             deleteOtherUser: 401,
             deleteAllUsers: 401,
         };
-        beforeAll(async () => {
-            adminToken = await createToken(adminUser.userId, 'admin');
-        });
         userTest(adminUser.userId, adminToken, adminTestSet)
     });
 });
@@ -88,7 +80,7 @@ function userTest(userId, auth, testCodeSet){
         },
 
         readUserself: async () => {
-            if (!userId) throw new Error('Invalid userId')
+            if (!userId) throw new Error('Invalid userId');
             return await requestHandler('get', `/users/${userId}`, undefined, auth);
         },
 
@@ -109,7 +101,7 @@ function userTest(userId, auth, testCodeSet){
         },
 
         updateUserself: async () => {
-            if (!userId) throw new Error('Invalid userId')
+            if (!userId) throw new Error('Invalid userId');
             return await requestHandler('put', `/users/${userId}`, { hash: 'updatedHash' }, auth);
         },
 
