@@ -6,7 +6,6 @@ const jwtOption = {
     expiresIn: '1h',
 };
 
-
 function checkValidToken(token){
     if (typeof token !== 'string'){
         throw createErrorResponse(401, 'Unauthorized');
@@ -27,7 +26,7 @@ function createErrorResponse(code, msg){
 }
 
 module.exports = {
-    createToken: async (userId, role) => {
+    createToken: (userId, role) => {
         return new Promise((resolve, reject) => {
             jwt.sign({ userId, role }, jwtSecret, jwtOption, (err, token) => {
                 if (err){
