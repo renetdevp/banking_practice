@@ -51,11 +51,11 @@ async function conformUser(modification){
 
     const { userId, hash } = modification;
 
-    if (typeof userId !== 'string'){
+    if (typeof userId === 'string'){
         result.userId = userId;
     }
 
-    if (typeof hash !== 'string'){
+    if (typeof hash === 'string'){
         const { salt, encrypted } = await encryptPassword(hash);
 
         result.salt = salt;
@@ -67,12 +67,6 @@ async function conformUser(modification){
     }
 
     return result;
-}
-
-function checkUserAuth(userId, userAuth){
-    if (userId === userAuth.userId || userAuth.role !== 'admin'){
-        throw createErrorResponse(403, 'Forbidden');
-    }
 }
 
 function createErrorResponse(code, msg){
@@ -95,7 +89,6 @@ module.exports = {
         // userId가 unique한 속성이고 user를 구분하기 위해 사용되므로 filter 내에 반드시 존재해야 함
         const { userId } = filter;
         checkUserIdFormat(userId);
-        checkUserAuth(userId, userAuth);
 
         const user = await User.findOne(filter, projection).lean();
 
@@ -121,7 +114,6 @@ module.exports = {
 
     updateOne: async (userId, changes, userAuth) => {
         checkUserIdFormat(userId);
-        checkUserAuth(userId, userAuth);
 
         const conformedUser = await conformUser(changes);
 
@@ -129,7 +121,7 @@ module.exports = {
             throw createErrorResponse(400, 'Invalid changes format');
         }
 
-        const result = await User.findOne({ userId }, conformedUser);
+        const result = await User.updateOne({ userId }, conformedUser);
 
         if (result.modifiedCount === 0){
             throw createErrorResponse(404, `User ${userId} not found`);
@@ -142,7 +134,6 @@ module.exports = {
 
     deleteOne: async (userId, userAuth) => {
         checkUserIdFormat(userId);
-        checkUserAuth(userId, userAuth);
 
         const result = await User.deleteOne({ userId }).exec();
 
