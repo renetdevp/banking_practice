@@ -32,10 +32,10 @@ describe('TEST /users ROUTE', () => {
             deleteAllUsers: 401,
         };
 
-        Object.keys(anonymousTestSet).map((key) => {
+        Object.entries(anonymousTestSet).forEach(([key, value]) => {
             test(key, async () => {
                 const res = await testMap[key](undefined, undefined);
-                expect(res.statusCode).toBe(anonymousTestSet[key]);
+                expect(res.statusCode).toBe(value);
             });
         });
     });
@@ -64,10 +64,10 @@ describe('TEST /users ROUTE', () => {
             deleteAllUsers: 403,
         };
 
-        Object.keys(nonAdminTestSet).map((key) => {
+        Object.entries(nonAdminTestSet).forEach(([key, value]) => {
             test(key, async () => {
                 const res = await testMap[key](nonAdminUser.userId, nonAdminToken);
-                expect(res.statusCode).toBe(nonAdminTestSet[key]);
+                expect(res.statusCode).toBe(value);
             });
         });
     });
@@ -104,10 +104,10 @@ describe('TEST /users ROUTE', () => {
             deleteAllUsers: 200,
         };
 
-        Object.keys(adminTestSet).map((key) => {
+        Object.entries(adminTestSet).forEach(([key, value]) => {
             test(key, async () => {
                 const res = await testMap[key](adminUser.userId, adminToken);
-                expect(res.statusCode).toBe(adminTestSet[key]);
+                expect(res.statusCode).toBe(value);
             });
         });
     });
