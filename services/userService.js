@@ -1,5 +1,7 @@
-const User = require('../models/userModel');
 const { randomBytes, pbkdf2 } = require('node:crypto');
+
+const User = require('../models/userModel');
+const { verifyToken } = require('./JWTService');
 
 function checkUserIdFormat(userId){
     if (typeof userId !== 'string'){
@@ -90,11 +92,13 @@ module.exports = {
         return users;
     },
 
-    readOne: async (userId, userAuth) => {
+    readOne: async (filter = {}, projection = { userId: 1, role: 1 }, userAuth) => {
+        // userId가 unique한 속성이고 user를 구분하기 위해 사용되므로 filter 내에 반드시 존재해야 함
+        const { userId } = filter;
         checkUserIdFormat(userId);
         checkUserAuth(userId, userAuth);
 
-        const user = await User.findOne({ userId }).lean();
+        const user = await User.findOne(filter, projection).lean();
 
         if (user === null){
             throw createErrorResponse(404, `User ${userId} not found`);
@@ -149,4 +153,5 @@ module.exports = {
     },
 
     encryptPassword,
+    checkUserFormat,
 };
