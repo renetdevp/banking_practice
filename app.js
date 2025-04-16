@@ -15,7 +15,8 @@ app.use(helmet());
 app.use(compression());
 app.use(rateLimit({
 	windowMs: 1000,
-	limit: 10,  // threshold: 10 attempt/request in a second
+	// limit: 10,  // threshold: 10 attempt/request in a second
+    limit: 30,
 	standardHeaders: 'draft-8',
 	legacyHeaders: false,
 }));
