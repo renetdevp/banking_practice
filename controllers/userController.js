@@ -18,7 +18,7 @@ module.exports = {
         const userAuth = req.user;
 
         try {
-            const user = await userService.readOne(userId, userAuth);
+            const user = await userService.readOne({ userId }, { userId: 1, role: 1 }, userAuth);
 
             res.status(200).json({
                 user: user,
