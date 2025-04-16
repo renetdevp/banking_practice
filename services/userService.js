@@ -1,7 +1,6 @@
 const { randomBytes, pbkdf2 } = require('node:crypto');
 
 const User = require('../models/userModel');
-const { verifyToken } = require('./JWTService');
 
 function checkUserIdFormat(userId){
     if (typeof userId !== 'string'){
