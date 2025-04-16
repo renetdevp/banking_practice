@@ -51,4 +51,16 @@ module.exports = {
 
         next();
     },
+
+    checkSelfOrAdmin: (req, res, next) => {
+        const userId = req.params.id;
+        const { role } = req.user;
+
+        if (role === 'admin') return next();
+        if (userId === req.user.userId) return next();
+
+        return res.status(403).json({
+            msg: 'Forbidden',
+        });
+    },
 }
