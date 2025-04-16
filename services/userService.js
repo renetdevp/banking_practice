@@ -152,6 +152,18 @@ module.exports = {
         }
     },
 
+    readVerifyInfo: async (filter = {}) => {
+        const { userId } = filter;
+        checkUserIdFormat(userId);
+
+        const verifyInfo = await User.findOne(filter, { hash: 1, salt: 1, role: 1 });
+        if (verifyInfo === null){
+            throw createErrorResponse(404, `User ${filter.userId} not found`);
+        }
+
+        return verifyInfo;
+    },
+
     encryptPassword,
     checkUserFormat,
 };
