@@ -1,6 +1,6 @@
 const { timingSafeEqual } = require('node:crypto');
 
-const { readVerifyInfo, encryptPassword, checkUserFormat } = require('./userService');
+const { readOne, encryptPassword, checkUserFormat } = require('./userService');
 const { createToken } = require('./JWTService');
 
 /**
@@ -30,7 +30,7 @@ module.exports = {
     createAuth: async (userId, userHash) => {
         checkUserFormat(userId, userHash);
 
-        const { hash, salt, role } = await readVerifyInfo({ userId });
+        const { hash, salt, role } = await readOne({ userId }, { hash: 1, salt: 1, role: 1 });
         const { encrypted } = await encryptPassword(userHash, salt);
 
         if (!comparePassword(hash, encrypted)){
