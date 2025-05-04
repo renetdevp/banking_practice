@@ -85,7 +85,7 @@ module.exports = {
         return users;
     },
 
-    readOne: async (filter = {}, projection = { userId: 1, role: 1 }, userAuth) => {
+    readOne: async (filter = {}, projection = { userId: 1, role: 1 }) => {
         // userId가 unique한 속성이고 user를 구분하기 위해 사용되므로 filter 내에 반드시 존재해야 함
         const { userId } = filter;
         checkUserIdFormat(userId);
@@ -112,7 +112,7 @@ module.exports = {
         await User.create({ userId: userId, hash: encrypted, salt: salt });
     },
 
-    updateOne: async (userId, changes, userAuth) => {
+    updateOne: async (userId, changes) => {
         checkUserIdFormat(userId);
 
         const conformedUser = await conformUser(changes);
@@ -132,7 +132,7 @@ module.exports = {
         await User.deleteMany(filter).exec();
     },
 
-    deleteOne: async (userId, userAuth) => {
+    deleteOne: async (userId) => {
         checkUserIdFormat(userId);
 
         const result = await User.deleteOne({ userId }).exec();
