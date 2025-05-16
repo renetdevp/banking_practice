@@ -1,4 +1,5 @@
 const { verifyToken } = require('../services/JWTService');
+const accountService = require('../services/accountService');
 
 function checkValidUserAuth(userAuth){
     if (typeof userAuth !== 'string'){
@@ -34,9 +35,7 @@ module.exports = {
 
             next();
         }catch (e){
-            res.status(e.code).json({
-                msg: e.msg,
-            });
+            next(e);
         }
     },
 
@@ -62,5 +61,26 @@ module.exports = {
         return res.status(403).json({
             msg: 'Forbidden',
         });
+    },
+
+    checkOwnerOrAdmin: async (req, res, next) => {
+        const { accountId } = req.params;
+        const { userId } = req.user;
+        const { role } = req.user;
+
+        try {
+            const { owner } = await accountService.readOne({
+                accountId, owner: userId,
+            }, { _id: 0, owner: 1, });
+
+            if (role === 'admin') return next();
+            if (owner === userId) return next();
+
+            return res.status(403).json({
+                msg: 'Forbidden',
+            });
+        } catch (e){
+            next(e);
+        }
     },
 }
